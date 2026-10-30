@@ -144,3 +144,12 @@ async def test_smoke_short_act_without_placeholders_still_returns_text():
     text = await hu_get_text("TV", "2010", "130")  # Jat., Act CXXX of 2010
     assert text.content and "jogszabalyMainTitle" in text.content
     assert 'class="pH borderStart"' not in text.content
+
+
+@pytest.mark.asyncio
+async def test_smoke_government_decree_annex_group_without_outer_id():
+    """314/2012. Korm. rendelet: NJT omits one placeholder's outer id in its response."""
+    _live_or_skip()
+    text = await hu_get_text("R", "2012", "314", issuer="Korm")
+    assert text.content and "13. melléklet a 314/2012" in text.content
+    assert 'class="pH borderStart"' not in text.content
