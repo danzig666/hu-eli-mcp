@@ -35,12 +35,12 @@ PAGE = """
 
 FRAGMENT_1 = (
     '<div id="sc-btk-1" class="bekezdesNyito">'
-    '<span class="szakasz-jel">339. §</span> Garázdaság</div>'
+    '<span class="szakasz-jel">339.\u2005§</span> Garázdaság</div>'
     '<div id="sc-btk-2" class="bekezdesNyito">Other provisions</div>'
 )
 FRAGMENT_2 = (
     '<div id="sc-btk-3" class="bekezdesNyito">'
-    '<span class="szakasz-jel">465. §</span> Final text</div>'
+    '<span class="szakasz-jel">465.\u2005§</span> Final text</div>'
 )
 
 
@@ -54,8 +54,8 @@ def test_find_groups_preserves_real_text_and_request_ranges():
     assert groups[1].request_items() == [{"start": 4443, "last": 4495}]
 
     complete = merge_deferred_groups(PAGE, groups, [FRAGMENT_1, FRAGMENT_2])
-    assert "339. §" in complete
-    assert "465. §" in complete
+    assert "339.\u2005§" in complete
+    assert "465.\u2005§" in complete
     assert "Keep this exact paragraph." in complete
     assert "Keep the footer." in complete
     assert "§338: available immediately" in complete
@@ -95,8 +95,8 @@ async def test_client_posts_block_ranges_and_returns_complete_text(tmp_path):
     try:
         url = "https://njt.jog.gov.hu/jogszabaly/2012-100-00-00"
         complete = await client.load_complete_text(url, PAGE)
-        assert "339. §" in complete
-        assert "465. §" in complete
+        assert "339.\u2005§" in complete
+        assert "465.\u2005§" in complete
         assert len(posts) == 2
         assert posts[0]["data"] == [{"start": 2943}, {"start": 3003, "last": 3062}]
         assert posts[1]["data"] == [{"start": 4443, "last": 4495}]
