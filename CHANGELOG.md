@@ -9,6 +9,12 @@
 - Document reproducible cases: Criminal Code (26 deferred blocks), Civil Code
   (78 deferred blocks), and the Debrecen building regulation (2 deferred annex blocks).
 - Add offline regression tests and live smoke tests for missing legal text.
+- Harden placeholder detection: recognise changed markup from `div` class
+  attributes only (not from the raw strings `pH`/`borderStart` anywhere in the
+  page), and fail on unclosed placeholders or placeholder ranges containing
+  rendered text instead of silently skipping or deleting legal text.
+- Warn in the `hu_get_text` description that results can be about 3 MB and may be
+  truncated by the client.
 - Clarify that NJT's `/ajax/njtGetBlock.json` is undocumented frontend plumbing,
   not a stable public REST API.
 

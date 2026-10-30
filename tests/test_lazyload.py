@@ -120,3 +120,42 @@ async def test_client_fails_closed_on_missing_blocks(tmp_path):
             )
     finally:
         await client.aclose()
+
+
+def test_raw_strings_in_text_css_or_scripts_do_not_fail_a_complete_page():
+    page = (
+        "<style>.pH.borderStart{min-height:2em}</style>"
+        "<script>angular.element('.pH.borderStart')</script>"
+        "<main><p>A víz pH-értéke 6,5 és 8,5 között legyen.</p></main>"
+    )
+    assert find_deferred_groups(page) == []
+
+
+def test_reject_changed_placeholder_markup():
+    page = '<div id="x" class="borderStart pHolder" data-show-order="1"></div>'
+    with pytest.raises(ValueError, match="not recognized"):
+        find_deferred_groups(page)
+
+
+def test_reject_unclosed_placeholder_even_when_others_parse():
+    page = PAGE.replace("</main>", "") + (
+        '<div id="sc-btk-4" class="pH borderStart" data-show-order="5000">'
+        '<span id="SZ470"></span>'
+    )
+    with pytest.raises(ValueError, match="Unclosed"):
+        find_deferred_groups(page)
+
+
+def test_reject_placeholder_range_that_would_delete_rendered_text():
+    # The inner div is never closed, so the placeholder's own </div> closes the inner
+    # one and the placeholder "ends" at the next </div>, swallowing the real section.
+    page = (
+        "<div class='wrapper'>"
+        '<div id="sc-btk-1" class="pH borderStart" data-show-order="2943">'
+        '<div class="pH"><span id="SZ339"></span>'
+        "</div>"
+        "<p>340. § Real, already rendered text</p>"
+        "</div>"
+    )
+    with pytest.raises(ValueError, match="rendered text"):
+        find_deferred_groups(page)

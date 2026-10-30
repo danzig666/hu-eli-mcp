@@ -12,6 +12,8 @@ statutory or annex blocks fetched via NJT's undocumented AJAX endpoint.
 
 ``robots.txt`` explicitly ``Allow``s ``/jogszabaly/*`` and does not mention ``/eli/*``
 (no ``Disallow`` covers it); only ``/search/*`` is disallowed, which this client never calls.
+The deferred-block POST to ``/ajax/njtGetBlock.json`` is therefore not disallowed either;
+re-check this if NJT's ``robots.txt`` changes.
 """
 
 from __future__ import annotations

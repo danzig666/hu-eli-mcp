@@ -52,6 +52,11 @@ class _PlaceholderParser(HTMLParser):
         self._line_offsets = [0] + [m.end() for m in re.finditer("\n", markup)]
         self._div_stack: list[tuple[str, int, int, int | None] | None] = []
         self.blocks: list[DeferredBlock] = []
+        # div elements that look like NJT block markup but are not the known placeholder form
+        self.unrecognized = 0
+
+    def unclosed_placeholders(self) -> list[str]:
+        return [item[0] for item in self._div_stack if item is not None]
 
     def _offset(self) -> int:
         line, column = self.getpos()
@@ -73,6 +78,8 @@ class _PlaceholderParser(HTMLParser):
                 (element_id, self._offset(), int(start), int(last) if last else None)
             )
         else:
+            if "borderStart" in classes:
+                self.unrecognized += 1
             self._div_stack.append(None)
 
     def handle_endtag(self, tag: str) -> None:
@@ -89,15 +96,39 @@ class _PlaceholderParser(HTMLParser):
             )
 
 
+_NON_TEXT = re.compile(r"<!--.*?-->|<[^>]*>|&nbsp;|&#160;|&#xa0;|\s+", re.DOTALL | re.IGNORECASE)
+
+
+def _visible_text(fragment: str) -> str:
+    return _NON_TEXT.sub("", fragment)
+
+
 def find_deferred_groups(markup: str) -> list[DeferredGroup]:
     """Group adjacent block placeholders; keep real HTML between groups intact."""
     parser = _PlaceholderParser(markup)
     parser.feed(markup)
+    parser.close()
     blocks = sorted(parser.blocks, key=lambda block: block.first)
 
-    # A changed NJT markup should not silently be interpreted as a full text.
-    if 'borderStart' in markup and 'pH' in markup and not blocks:
+    # A changed NJT markup should not silently be interpreted as a full text. Only
+    # inspect div class attributes: "borderStart" in inline CSS/JS or "pH" in legal
+    # text (e.g. "pH-érték") must not make a short, complete document fail.
+    if parser.unrecognized:
         raise ValueError("NJT deferred-block markup is not recognized.")
+
+    # A placeholder whose closing tag never arrives would otherwise be skipped silently.
+    unclosed = parser.unclosed_placeholders()
+    if unclosed:
+        raise ValueError(f"Unclosed NJT deferred block(s): {unclosed[:3]}")
+
+    # Placeholders are empty by definition. Rendered text inside a computed placeholder
+    # range means the div boundaries were mis-detected (unbalanced HTML), and replacing
+    # that range would silently delete real legal text.
+    for block in blocks:
+        if _visible_text(markup[block.first : block.last]):
+            raise ValueError(
+                f"NJT deferred block {block.element_id} unexpectedly contains rendered text."
+            )
 
     groups: list[list[DeferredBlock]] = []
     for block in blocks:

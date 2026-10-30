@@ -264,6 +264,10 @@ async def hu_get_text(
 ) -> LegislationText:
     """Fetch complete legislation HTML, including NJT's deferred blocks.
 
+    The result can be very large (the Civil Code is about 3 MB of HTML). Check
+    `byte_size`: if your client truncates tool results, the text you see is not the
+    whole law, so do not conclude that a section is absent from what you received.
+
     For Acts (torveny), pass `doc_type="TV"` and omit `issuer`. For anything else, pass the
     `issuer` code (case-sensitive - use `hu_list_issuers`).
 

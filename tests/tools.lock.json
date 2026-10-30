@@ -456,7 +456,7 @@
           "openWorldHint": true,
           "readOnlyHint": true
         },
-        "description": "Fetch complete legislation HTML, including NJT's deferred blocks.\n\nFor Acts (torveny), pass `doc_type=\"TV\"` and omit `issuer`. For anything else, pass the\n`issuer` code (case-sensitive - use `hu_list_issuers`).",
+        "description": "Fetch complete legislation HTML, including NJT's deferred blocks.\n\nThe result can be very large (the Civil Code is about 3 MB of HTML). Check\n`byte_size`: if your client truncates tool results, the text you see is not the\nwhole law, so do not conclude that a section is absent from what you received.\n\nFor Acts (torveny), pass `doc_type=\"TV\"` and omit `issuer`. For anything else, pass the\n`issuer` code (case-sensitive - use `hu_list_issuers`).",
         "inputSchema": {
           "additionalProperties": false,
           "properties": {
@@ -627,7 +627,7 @@
           "type": "object"
         }
       },
-      "sha256": "fee3c4512bf95307e95d25439810f34470572095e2e39173170b387ba0825acd"
+      "sha256": "b4f348ea31a1ab48c04d24fd604c385a2e8e256b7771163c2891ff9a5124388d"
     },
     "hu_list_doc_types": {
       "descriptor": {
@@ -752,6 +752,5 @@
       "sha256": "1ec73f23323346da986f04cd89d8eab1cffaea9408e25bee583b3438012feed1"
     }
   },
-  "toolset_sha256": "63cd0494d094e6bb1b6d9985b28bdb8280212c610151f2f6d9157886297e9b52"
+  "toolset_sha256": "72e350cb71a614c9cba3c112cab530594fcec2ed4a8c08a803ba4565931d9468"
 }
-

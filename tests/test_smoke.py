@@ -135,3 +135,12 @@ async def test_smoke_debrecen_decree_annexes_are_not_lost():
             'id="sc2020-47-SP-5Y1578-8951" class="mellekletPont pslice"'
             in complete
         )
+
+
+@pytest.mark.asyncio
+async def test_smoke_short_act_without_placeholders_still_returns_text():
+    """A short law with nothing deferred must not trip the markup-change guard."""
+    _live_or_skip()
+    text = await hu_get_text("TV", "2010", "130")  # Jat., Act CXXX of 2010
+    assert text.content and "jogszabalyMainTitle" in text.content
+    assert 'class="pH borderStart"' not in text.content

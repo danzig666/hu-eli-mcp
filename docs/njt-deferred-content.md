@@ -84,8 +84,16 @@ legislation and annexes, not just long national Acts.
   from document size, a `200 OK` response, footnotes, or generic `§` matches.
 - Request the marked show-order ranges and preserve their original position
   when inserting the returned HTML, including interspersed already-loaded text.
+- The client sends one request per run of adjacent placeholders, so a document
+  whose placeholders are interleaved with already-rendered text needs several
+  requests even though the endpoint accepts many ranges at once.
 - Validate that every requested block identifier is present in the returned
   HTML. On a missing/failed block, **fail rather than return a purported full text**.
+- Also fail when a placeholder is never closed, when a computed placeholder range
+  contains rendered text (unbalanced HTML would otherwise make the replacement
+  delete real legal text), or when a `div` carries `borderStart` without the known
+  `pH borderStart` form. Only `div` class attributes are inspected, so the strings
+  `pH` or `borderStart` in legal text, CSS or scripts do not trigger a failure.
 - Treat `/ajax/njtGetBlock.json` as an internal, *undocumented* interface;
   its behavior may change. It should not be described as a stable public
   legal-data API.
