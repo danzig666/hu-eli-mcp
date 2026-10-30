@@ -11,7 +11,6 @@ from hu_eli_mcp.cache import HttpCache
 from hu_eli_mcp.client import HuError, NjtClient
 from hu_eli_mcp.lazyload import find_deferred_groups, merge_deferred_groups
 
-
 # Realistic NJT nested placeholder structure, including two adjacent ranges
 # and a third range separated by already-rendered source text.
 PAGE = """
