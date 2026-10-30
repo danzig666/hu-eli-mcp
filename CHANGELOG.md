@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased (fork: danzig666/hu-eli-mcp)
+
+- Claude chat skill `njt-jogszabalyok` bundles the hu-eli source instead of installing it
+  from a GitHub archive in the chat: code execution can refuse a package downloaded from
+  GitHub as external code. `scripts/hu_eli.py` runs the bundled CLI, reads the entry point
+  and dependencies from the bundled `pyproject.toml`, prints the PyPI install command for
+  missing dependencies (`--selfcheck`) and turns off the runtime manifest download.
+- `skills/build_skill.py` builds the uploadable ZIP from a commit of this repository with
+  `git archive` (no clone, working tree untouched); `tests/test_skill_bundle.py` builds it
+  and runs the launcher in CI.
+- README rewritten for the fork's current state: four ways to use it, install from this
+  fork rather than PyPI, coverage gaps, data and network.
+
 ## 0.4.0 (fork: danzig666/hu-eli-mcp)
 
 - Municipal decrees (önkormányzati rendeletek): `hu_find_municipality`,

@@ -22,3 +22,6 @@ build/
 Thumbs.db
 
 # Note: tests/fixtures/* ARE committed - public NJT data needed for offline tests.
+
+# Claude skill build output (skills/build_skill.py)
+skills/*/vendor/
