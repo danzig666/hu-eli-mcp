@@ -8,8 +8,9 @@ explicitly with:
 
 from __future__ import annotations
 
-import httpx
 import re
+
+import httpx
 import pytest
 
 from hu_eli_mcp.client import NjtClient
