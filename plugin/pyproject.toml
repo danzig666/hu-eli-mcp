@@ -1,11 +1,11 @@
-# Runtime of the Claude plugin: pins hu-eli-mcp and every transitive dependency
-# (with hashes) in uv.lock, so the plugin runs exactly what was reviewed.
-# Started by plugin.json as: uvx hu-eli-mcp==0.3.3 (Claude Code's locked launch reads this uv.lock)
+# Runtime of the Claude plugin: pins hu-eli-mcp (this fork, at one exact commit) and every
+# transitive dependency (with hashes) in uv.lock, so the plugin runs exactly what was reviewed.
+# Started by plugin.json as: uvx --from https://github.com/danzig666/hu-eli-mcp/archive/aac5b246bfb4259357d774f39114fac7152e4c96.tar.gz hu-eli-mcp
 [project]
 name = "hu-eli-mcp-plugin-runtime"
-version = "0.3.3"
+version = "0.4.0"
 requires-python = ">=3.11,<3.14"
-dependencies = ["hu-eli-mcp==0.3.3"]
+dependencies = ["hu-eli-mcp @ https://github.com/danzig666/hu-eli-mcp/archive/aac5b246bfb4259357d774f39114fac7152e4c96.tar.gz"]
 
 [tool.uv]
 package = false

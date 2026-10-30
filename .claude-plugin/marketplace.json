@@ -1,16 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-plugin-marketplace.json",
   "name": "hu-eli-mcp",
-  "description": "One plugin: Hungarian law with verifiable citations.",
+  "description": "Hungarian law with verifiable citations, including municipal decrees (fork of matematicsolutions/hu-eli-mcp).",
   "owner": {
-    "name": "Wieslaw Mazur / MateMatic Solutions",
-    "url": "https://matematicsolutions.com"
+    "name": "danzig666",
+    "url": "https://github.com/danzig666"
   },
   "plugins": [
     {
       "name": "hu-eli-mcp",
-      "description": "Hungarian legislation from the National Legislation Database (njt.jog.gov.hu) by native ELI.",
-      "version": "0.3.3",
+      "description": "Hungarian national and municipal legislation from njt.jog.gov.hu by native ELI, read in full with search.",
+      "version": "0.4.0",
       "author": {
         "name": "Wieslaw Mazur / MateMatic Solutions"
       },

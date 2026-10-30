@@ -150,3 +150,13 @@ pytest tests/test_smoke.py                 # live NJT
 
 Apache-2.0. The Hungarian legislation served is official public data of Hungary; this
 connector adds no rights over it.
+
+## Use it from Claude
+
+- **Claude Code / desktop app (plugin):** `/plugin marketplace add danzig666/hu-eli-mcp#feat/local-decrees-plugin`,
+  then `/plugin install hu-eli-mcp@hu-eli-mcp`. Details in [plugin/README.md](plugin/README.md).
+- **Claude chats (skill):** [skills/njt-jogszabalyok/SKILL.md](skills/njt-jogszabalyok/SKILL.md)
+  installs the `hu-eli` command in the code execution sandbox and reads legislation with it.
+  Code execution needs network access to github.com, codeload.github.com, pypi.org and
+  njt.jog.gov.hu.
+- **Command line:** `uvx --from https://github.com/danzig666/hu-eli-mcp/archive/feat/local-decrees-plugin.tar.gz hu-eli local Debrecen 2020 47 --search "Lke-J/19"`.
