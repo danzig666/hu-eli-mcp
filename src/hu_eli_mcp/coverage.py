@@ -62,9 +62,12 @@ AS_OF_NOTE = (
     "text is still in force today."
 )
 
-_FAMILIES: list[dict] = [{'name': 'National legislation', 'tool': 'hu_get_act / hu_get_legislation / hu_get_text'}]
+_FAMILIES: list[dict] = [
+    {'name': 'National legislation', 'tool': 'hu_get_act / hu_get_legislation / hu_get_text / hu_read_text'},
+    {'name': 'Municipal decrees', 'tool': 'hu_find_municipality / hu_get_local_decree / hu_read_local_decree'},
+]
 
-_GAPS: list[dict] = [{'id': 'HU-001', 'family': 'National legislation', 'missing': 'There is no free-text search here - acts are addressed by their coordinates; the type and issuer listings only narrow the space.', 'fallback': 'Use the NJT website search to find an act identifier first.'}, {'id': 'HU-002', 'family': 'National legislation', 'missing': 'Case law is not covered - NJT publishes legislation.', 'fallback': 'Use the Birosag decision database.'}, {'id': 'HU-003', 'family': 'National legislation', 'missing': 'Legal force on a given date is not evaluated. Text is returned as the source publishes it; this connector does not decide whether a provision is in force.', 'fallback': 'Check the validity or consolidation dates on the source record itself.'}]
+_GAPS: list[dict] = [{'id': 'HU-001', 'family': 'National legislation', 'missing': 'There is no free-text search here - acts are addressed by their coordinates; the type and issuer listings only narrow the space.', 'fallback': 'Use the NJT website search to find an act identifier first.'}, {'id': 'HU-002', 'family': 'National legislation', 'missing': 'Case law is not covered - NJT publishes legislation.', 'fallback': 'Use the Birosag decision database.'}, {'id': 'HU-003', 'family': 'National legislation', 'missing': 'Legal force on a given date is not evaluated. Text is returned as the source publishes it; this connector does not decide whether a provision is in force.', 'fallback': 'Check the validity or consolidation dates on the source record itself.'}, {'id': 'HU-004', 'family': 'Municipal decrees', 'missing': "There is no list of a municipality's decrees: NJT's ELI list page for a municipality and year (/eli/OR/{year}/{issuer}) returns a server error, so a decree must be addressed by its number.", 'fallback': "Find the decree number on the NJT website's municipal search or on the municipality's own website, then use hu_read_local_decree."}, {'id': 'HU-005', 'family': 'Municipal decrees', 'missing': 'Annexes published only as attached files (typically plan sheets of a local building regulation) are linked, not read: their content is not in the text.', 'fallback': 'Open the [PDF: url] links listed in attachments.'}]
 
 
 def build_coverage() -> Coverage:

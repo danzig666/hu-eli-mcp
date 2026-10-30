@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.0 (fork: danzig666/hu-eli-mcp)
+
+- Municipal decrees (önkormányzati rendeletek): `hu_find_municipality`,
+  `hu_get_local_decree` and `hu_read_local_decree`, addressed by NJT's municipal ELI
+  `/eli/OR/{year}/{issuer}/{serial}[/{date}]`. A municipality can be given by name;
+  ambiguous names are rejected with candidates.
+- `hu_read_text` / `hu_read_local_decree`: complete plain legal text in pages
+  (`start`, `max_chars`, `next_start`) with case- and accent-insensitive search, so
+  long documents are not cut off by client limits. Footnotes and page chrome are left
+  out; tables stay one row per line; annexes published only as files are linked.
+- Point-in-time versions via `date` (`YYYY-MM-DD` or `kozlony`).
+- `hu-eli` command-line tool exposing the same lookups (used by the Claude skill).
+- Coverage: new family "Municipal decrees" and gaps HU-004 (no per-municipality decree
+  list: NJT's list page returns a server error) and HU-005 (file-only annexes).
+- Claude plugin and marketplace now install from this fork at a pinned tag.
+
 ## 0.3.4 (unreleased)
 
 - Fix `hu_get_text` silently returning truncated legislation when NJT defers

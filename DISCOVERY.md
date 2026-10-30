@@ -114,5 +114,12 @@ substitute identifier.
 - No free-text or title search is possible headlessly (see CONSTITUTION.md Open Points #1).
 - Historical/gazette (`kozlony`) date-pinned versions are part of the documented ELI schema
   but not yet exposed as explicit tool parameters (CONSTITUTION.md Open Points #3).
-- Municipal decrees (`onkormanyzati rendeletek`) have a separate ELI form
-  (`/eli/{ortip}/{ev}/{orkib}/{sr}`) noted in the schema docs but not covered by this MVP.
+- Municipal decrees (`onkormanyzati rendeletek`): covered since 0.4.0. ELI
+  `/eli/{ortip}/{ev}/{orkib}/{sr}[/{date}]` with `ortip` = `OR` (decree) or `RI`
+  (justification) and `orkib` the numeric "ELI parameter" from `/eli/kshkodok`
+  (3,197 issuers on 2026-10-30: settlements, county governments, Budapest districts),
+  e.g. `/eli/OR/2020/735584/47` → `/jogszabaly/2020-47-SP-5Y1578` (Debrecen HÉSZ).
+  A dated version resolves to a suffixed document id (`.../2023-01-01` →
+  `2020-47-SP-5Y1578.21`), and the deferred-block endpoint accepts that id. The
+  per-municipality list page (`/eli/OR/{ev}/{orkib}` without serial) returned HTTP 500
+  when checked, so there is no headless way to enumerate a municipality's decrees.

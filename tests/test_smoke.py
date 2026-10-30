@@ -144,3 +144,40 @@ async def test_smoke_short_act_without_placeholders_still_returns_text():
     text = await hu_get_text("TV", "2010", "130")  # Jat., Act CXXX of 2010
     assert text.content and "jogszabalyMainTitle" in text.content
     assert 'class="pH borderStart"' not in text.content
+
+
+@pytest.mark.asyncio
+async def test_smoke_local_decree_debrecen_building_regulation():
+    """Municipal ELI: name lookup, metadata, complete text with lazy-loaded annexes."""
+    _live_or_skip()
+    from hu_eli_mcp.server import hu_get_local_decree, hu_read_local_decree
+
+    meta = await hu_get_local_decree("Debrecen", "2020", "47")
+    assert meta.issuer == "735584"
+    assert meta.eli_uri.endswith("/eli/OR/2020/735584/47")
+    assert "helyi építési szabályzat" in (meta.human_readable_citation or "")
+
+    page = await hu_read_local_decree("Debrecen", "2020", "47", search="Lke-J/18")
+    assert page.total_chars > 200_000 and not page.complete and page.matches
+    assert any("melléklet" in a.title for a in page.attachments)
+
+
+@pytest.mark.asyncio
+async def test_smoke_local_decree_point_in_time():
+    _live_or_skip()
+    from hu_eli_mcp.server import hu_read_local_decree
+
+    page = await hu_read_local_decree("735584", "2020", "47", date="2023-01-01", max_chars=2000)
+    assert page.source_url and "." in page.source_url.rsplit("/", 1)[-1]  # a dated state
+    assert page.date == "2023-01-01"
+
+
+@pytest.mark.asyncio
+async def test_smoke_read_text_btk_reaches_deferred_sections():
+    _live_or_skip()
+    from hu_eli_mcp.server import hu_read_text
+
+    page = await hu_read_text("TV", "2012", "100", search="Garázdaság")
+    assert page.matches
+    later = await hu_read_text("TV", "2012", "100", start=page.matches[0].start, max_chars=2000)
+    assert "339. §" in later.text

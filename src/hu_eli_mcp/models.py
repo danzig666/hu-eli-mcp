@@ -94,3 +94,70 @@ class IssuerList(_Tolerant):
 
     items: list[IssuerInfo] = Field(default_factory=list)
     dataset_note: str = DATASET_NOTE
+
+
+class MunicipalityInfo(_Tolerant):
+    """One issuer of municipal decrees from /eli/kshkodok (settlement, county or district)."""
+
+    code: str
+    """The numeric ELI issuer parameter, e.g. '735584' (Debrecen)."""
+
+    name: str
+    """The issuing local government as NJT names it."""
+
+
+class MunicipalityList(_Tolerant):
+    """Result of ``hu_find_municipality`` - best match first."""
+
+    query: str
+    items: list[MunicipalityInfo] = Field(default_factory=list)
+    dataset_note: str = DATASET_NOTE
+
+
+class TextMatch(_Tolerant):
+    """One hit of a search inside a document's plain text."""
+
+    start: int
+    """Character offset in the plain text; pass it as ``start`` to read from there."""
+
+    snippet: str
+
+
+class AttachmentInfo(_Tolerant):
+    """An annex NJT publishes only as an attached file (e.g. a plan sheet)."""
+
+    title: str
+    url: str
+
+
+class TextPage(_Tolerant):
+    """One page of a document's plain legal text (footnotes and page chrome removed)."""
+
+    doc_type: str
+    year: str
+    serial: str
+    issuer: str | None = None
+    issuer_name: str | None = None
+    date: str | None = None
+    """The requested point in time (YYYY-MM-DD or 'kozlony'); None = in force now."""
+
+    title: str | None = None
+    subtitle: str | None = None
+    in_force_date: str | None = None
+    eli_uri: str | None = None
+    human_readable_citation: str | None = None
+    source_url: str | None = None
+
+    start: int
+    end: int
+    total_chars: int
+    next_start: int | None = None
+    """Offset of the next page, or None when this page reaches the end of the document."""
+
+    complete: bool
+    """True only when this single page contains the whole document."""
+
+    text: str
+    matches: list[TextMatch] = Field(default_factory=list)
+    attachments: list[AttachmentInfo] = Field(default_factory=list)
+    dataset_note: str = DATASET_NOTE

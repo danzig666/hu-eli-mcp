@@ -1,5 +1,5 @@
 {
-  "package_version": "0.3.4",
+  "package_version": "0.4.0",
   "tools": {
     "hu_coverage": {
       "descriptor": {
@@ -123,6 +123,79 @@
         }
       },
       "sha256": "92b59c3323cc6f35021136f06e00c011b3393aeab4824a6e94e52f963b9e8c39"
+    },
+    "hu_find_municipality": {
+      "descriptor": {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Find the ELI issuer code of a local government (settlement, county or Budapest district).\n\nSearches NJT's /eli/kshkodok table, accent- and case-insensitively, best match first.\nUse the returned `code` (e.g. ``\"735584\"`` for Debrecen) with `hu_get_local_decree` and\n`hu_read_local_decree` when a name is ambiguous.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "default": 10,
+              "description": "maximum number of results (1-50).",
+              "type": "integer"
+            },
+            "name": {
+              "description": "(part of) the name, e.g. ``\"Debrecen\"``, ``\"Hajdu-Bihar\"``, ``\"Budapest XI\"``,\nor a numeric code to look up its name.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "type": "object"
+        },
+        "meta": {
+          "fastmcp": {
+            "tags": []
+          }
+        },
+        "name": "hu_find_municipality",
+        "outputSchema": {
+          "additionalProperties": true,
+          "description": "Result of ``hu_find_municipality`` - best match first.",
+          "properties": {
+            "dataset_note": {
+              "default": "Nemzeti Jogszabalytar (NJT) is Hungary's official, free-to-use national legislation database, maintained by MKIFK (Magyar Kozlonykiado es Igazsagugyi Forditokozpont Zrt.) at njt.jog.gov.hu. Hungary publishes a genuine, documented national ELI (European Legislation Identifier) URI scheme since 2023 (see /eli/urisemak). Each ELI URI resolves (HTTP 302) to a partially server-rendered HTML page. Large acts may include deferred statutory or annex blocks; hu_get_text reconstructs them via NJT internal AJAX requests. There is no documented public REST/JSON search API; the search/browse UI is an AngularJS SPA that requires a session and JavaScript; documents must be addressed by a known ELI (type + year + serial, and an issuer code for non-Act types).",
+              "type": "string"
+            },
+            "items": {
+              "items": {
+                "additionalProperties": true,
+                "description": "One issuer of municipal decrees from /eli/kshkodok (settlement, county or district).",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "query": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "type": "object"
+        }
+      },
+      "sha256": "100274201d366932257c0fe80a6ce8be19d91ba52992fdf9431ca862733d65d5"
     },
     "hu_get_act": {
       "descriptor": {
@@ -448,6 +521,185 @@
       },
       "sha256": "b784699d6bf8b2dfd3d68c8fec8d815e35aa7c0763be72f3297298a3efc5c52c"
     },
+    "hu_get_local_decree": {
+      "descriptor": {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Fetch metadata for a municipal decree (onkormanyzati rendelet) by its ELI.\n\nELI: ``/eli/OR/{year}/{issuer code}/{serial}[/{date}]``. Example: Debrecen's local building\nregulation, 47/2020. (XII. 28.) onkormanyzati rendelet, is\n``municipality=\"Debrecen\", year=\"2020\", serial=\"47\"``.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "optional ``YYYY-MM-DD`` for the version in force that day, or ``\"kozlony\"``\nfor the version as published; omit for the version in force now."
+            },
+            "doc_type": {
+              "default": "OR",
+              "description": "``\"OR\"`` (the decree, default) or ``\"RI\"`` (its justification).",
+              "type": "string"
+            },
+            "municipality": {
+              "description": "the issuing local government's name (e.g. ``\"Ebes\"``) or its numeric\ncode from `hu_find_municipality`. An ambiguous name is rejected with candidates.",
+              "type": "string"
+            },
+            "serial": {
+              "description": "the decree's number within that year.",
+              "type": "string"
+            },
+            "year": {
+              "description": "4-digit year of the decree.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "municipality",
+            "year",
+            "serial"
+          ],
+          "type": "object"
+        },
+        "meta": {
+          "fastmcp": {
+            "tags": []
+          }
+        },
+        "name": "hu_get_local_decree",
+        "outputSchema": {
+          "additionalProperties": true,
+          "description": "A Hungarian piece of legislation resolved via its ELI URI.",
+          "properties": {
+            "dataset_note": {
+              "default": "Nemzeti Jogszabalytar (NJT) is Hungary's official, free-to-use national legislation database, maintained by MKIFK (Magyar Kozlonykiado es Igazsagugyi Forditokozpont Zrt.) at njt.jog.gov.hu. Hungary publishes a genuine, documented national ELI (European Legislation Identifier) URI scheme since 2023 (see /eli/urisemak). Each ELI URI resolves (HTTP 302) to a partially server-rendered HTML page. Large acts may include deferred statutory or annex blocks; hu_get_text reconstructs them via NJT internal AJAX requests. There is no documented public REST/JSON search API; the search/browse UI is an AngularJS SPA that requires a session and JavaScript; documents must be addressed by a known ELI (type + year + serial, and an issuer code for non-Act types).",
+              "type": "string"
+            },
+            "doc_type": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "eli_uri": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "human_readable_citation": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "in_force_date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "issuer": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "serial": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "source_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "subtitle": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "year": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "type": "object"
+        }
+      },
+      "sha256": "ce6bdfa6eac14c5cb2698bb58e32571dea482d2276e2ae7d04e3eef6161c905a"
+    },
     "hu_get_text": {
       "descriptor": {
         "annotations": {
@@ -750,7 +1002,564 @@
         }
       },
       "sha256": "1ec73f23323346da986f04cd89d8eab1cffaea9408e25bee583b3438012feed1"
+    },
+    "hu_read_local_decree": {
+      "descriptor": {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Read a municipal decree's complete plain text, one page at a time, with search.\n\nThe whole decree is loaded (including NJT's lazy-loaded sections and annexes), converted\nto plain legal text, and returned from `start` for up to `max_chars` characters. Continue\nwith `start=next_start` until `next_start` is null; `complete` is true only when one page\nholds the whole text. With `search` (case- and accent-insensitive), `matches` lists every\nhit's offset and snippet - read from a hit's `start` to see the provision in context.\nAnnexes published only as files (e.g. plan sheets of a building regulation) appear as\n``[PDF: url]`` in the text and in `attachments`.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "optional ``YYYY-MM-DD`` (version in force that day) or ``\"kozlony\"``."
+            },
+            "doc_type": {
+              "default": "OR",
+              "description": "``\"OR\"`` (default) or ``\"RI\"`` (justification).",
+              "type": "string"
+            },
+            "max_chars": {
+              "default": 20000,
+              "description": "page size, 1000-60000 (default 20000).",
+              "type": "integer"
+            },
+            "municipality": {
+              "description": "issuer name (e.g. ``\"Debrecen\"``) or numeric code.",
+              "type": "string"
+            },
+            "search": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "optional phrase to locate, e.g. ``\"Lke-J/19\"`` or ``\"telepulesi foepitesz\"``."
+            },
+            "serial": {
+              "description": "the decree's number within that year.",
+              "type": "string"
+            },
+            "start": {
+              "default": 0,
+              "description": "character offset to read from (0 = beginning).",
+              "type": "integer"
+            },
+            "year": {
+              "description": "4-digit year of the decree.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "municipality",
+            "year",
+            "serial"
+          ],
+          "type": "object"
+        },
+        "meta": {
+          "fastmcp": {
+            "tags": []
+          }
+        },
+        "name": "hu_read_local_decree",
+        "outputSchema": {
+          "additionalProperties": true,
+          "description": "One page of a document's plain legal text (footnotes and page chrome removed).",
+          "properties": {
+            "attachments": {
+              "items": {
+                "additionalProperties": true,
+                "description": "An annex NJT publishes only as an attached file (e.g. a plan sheet).",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "url"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "dataset_note": {
+              "default": "Nemzeti Jogszabalytar (NJT) is Hungary's official, free-to-use national legislation database, maintained by MKIFK (Magyar Kozlonykiado es Igazsagugyi Forditokozpont Zrt.) at njt.jog.gov.hu. Hungary publishes a genuine, documented national ELI (European Legislation Identifier) URI scheme since 2023 (see /eli/urisemak). Each ELI URI resolves (HTTP 302) to a partially server-rendered HTML page. Large acts may include deferred statutory or annex blocks; hu_get_text reconstructs them via NJT internal AJAX requests. There is no documented public REST/JSON search API; the search/browse UI is an AngularJS SPA that requires a session and JavaScript; documents must be addressed by a known ELI (type + year + serial, and an issuer code for non-Act types).",
+              "type": "string"
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "doc_type": {
+              "type": "string"
+            },
+            "eli_uri": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "end": {
+              "type": "integer"
+            },
+            "human_readable_citation": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "in_force_date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "issuer": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "issuer_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "matches": {
+              "items": {
+                "additionalProperties": true,
+                "description": "One hit of a search inside a document's plain text.",
+                "properties": {
+                  "snippet": {
+                    "type": "string"
+                  },
+                  "start": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "start",
+                  "snippet"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "next_start": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "serial": {
+              "type": "string"
+            },
+            "source_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "start": {
+              "type": "integer"
+            },
+            "subtitle": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "text": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "total_chars": {
+              "type": "integer"
+            },
+            "year": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "doc_type",
+            "year",
+            "serial",
+            "start",
+            "end",
+            "total_chars",
+            "complete",
+            "text"
+          ],
+          "type": "object"
+        }
+      },
+      "sha256": "27e6c151d57a2f49d7ef05c145358780a8429cc27b4bd4ea7917b8b679910efb"
+    },
+    "hu_read_text": {
+      "descriptor": {
+        "annotations": {
+          "destructiveHint": false,
+          "idempotentHint": true,
+          "openWorldHint": true,
+          "readOnlyHint": true
+        },
+        "description": "Read national legislation's complete plain text, one page at a time, with search.\n\nSame addressing as `hu_get_text` (Acts: ``doc_type=\"TV\"``, no issuer), but returns plain\nlegal text in pages instead of megabytes of HTML, so long codes (Btk., Ptk.) can be read\nin full. Continue with `start=next_start` until `next_start` is null. With `search`,\n`matches` gives each hit's offset and snippet.",
+        "inputSchema": {
+          "additionalProperties": false,
+          "properties": {
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "optional ``YYYY-MM-DD`` (version in force that day) or ``\"kozlony\"``."
+            },
+            "doc_type": {
+              "description": "NJT type code, e.g. ``\"TV\"`` or ``\"R\"``.",
+              "type": "string"
+            },
+            "issuer": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "NJT issuer code, case-sensitive (required except for ``\"TV\"``)."
+            },
+            "max_chars": {
+              "default": 20000,
+              "description": "page size, 1000-60000 (default 20000).",
+              "type": "integer"
+            },
+            "search": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "optional phrase to locate, e.g. ``\"garazdasag\"``."
+            },
+            "serial": {
+              "description": "the document's serial number within that year.",
+              "type": "string"
+            },
+            "start": {
+              "default": 0,
+              "description": "character offset to read from (0 = beginning).",
+              "type": "integer"
+            },
+            "year": {
+              "description": "4-digit year.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "doc_type",
+            "year",
+            "serial"
+          ],
+          "type": "object"
+        },
+        "meta": {
+          "fastmcp": {
+            "tags": []
+          }
+        },
+        "name": "hu_read_text",
+        "outputSchema": {
+          "additionalProperties": true,
+          "description": "One page of a document's plain legal text (footnotes and page chrome removed).",
+          "properties": {
+            "attachments": {
+              "items": {
+                "additionalProperties": true,
+                "description": "An annex NJT publishes only as an attached file (e.g. a plan sheet).",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "title",
+                  "url"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "dataset_note": {
+              "default": "Nemzeti Jogszabalytar (NJT) is Hungary's official, free-to-use national legislation database, maintained by MKIFK (Magyar Kozlonykiado es Igazsagugyi Forditokozpont Zrt.) at njt.jog.gov.hu. Hungary publishes a genuine, documented national ELI (European Legislation Identifier) URI scheme since 2023 (see /eli/urisemak). Each ELI URI resolves (HTTP 302) to a partially server-rendered HTML page. Large acts may include deferred statutory or annex blocks; hu_get_text reconstructs them via NJT internal AJAX requests. There is no documented public REST/JSON search API; the search/browse UI is an AngularJS SPA that requires a session and JavaScript; documents must be addressed by a known ELI (type + year + serial, and an issuer code for non-Act types).",
+              "type": "string"
+            },
+            "date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "doc_type": {
+              "type": "string"
+            },
+            "eli_uri": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "end": {
+              "type": "integer"
+            },
+            "human_readable_citation": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "in_force_date": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "issuer": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "issuer_name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "matches": {
+              "items": {
+                "additionalProperties": true,
+                "description": "One hit of a search inside a document's plain text.",
+                "properties": {
+                  "snippet": {
+                    "type": "string"
+                  },
+                  "start": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "start",
+                  "snippet"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "next_start": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "serial": {
+              "type": "string"
+            },
+            "source_url": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "start": {
+              "type": "integer"
+            },
+            "subtitle": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "text": {
+              "type": "string"
+            },
+            "title": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            },
+            "total_chars": {
+              "type": "integer"
+            },
+            "year": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "doc_type",
+            "year",
+            "serial",
+            "start",
+            "end",
+            "total_chars",
+            "complete",
+            "text"
+          ],
+          "type": "object"
+        }
+      },
+      "sha256": "43216fd2a4cd603e979a91c38d8ee20cfe1372524601f708f20930f95b16510e"
     }
   },
-  "toolset_sha256": "72e350cb71a614c9cba3c112cab530594fcec2ed4a8c08a803ba4565931d9468"
+  "toolset_sha256": "032d975a8cda3c5679b961cf09d685f8e15e965a1cc7ab175c5ba0aa6ef961d9"
 }

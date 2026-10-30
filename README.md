@@ -25,7 +25,13 @@ member state, the same citation contract everywhere.
 | `hu_get_text(doc_type, year, serial, issuer=None)` | Complete NJT document HTML, including statutory and annex blocks loaded separately by NJT. |
 | `hu_list_doc_types()` | Valid NJT document-type codes (e.g. `TV`=Act, `R`=decree). |
 | `hu_list_issuers()` | Valid NJT issuer codes (e.g. `Korm`=Government) — note the exact casing matters. |
+| `hu_read_text(doc_type, year, serial, issuer=None, date=None, start=0, max_chars=20000, search=None)` | The complete **plain legal text** in pages, with phrase search returning offsets. Use this rather than `hu_get_text` from a model client: long codes (Btk., Ptk.) are 1-3 MB of HTML but read fully page by page. |
+| `hu_find_municipality(name)` | ELI issuer code of a local government (settlement, county, Budapest district) from NJT's `/eli/kshkodok`, accent-insensitive, e.g. `Debrecen` → `735584`. |
+| `hu_get_local_decree(municipality, year, serial, date=None)` | Metadata for a **municipal decree** (önkormányzati rendelet) by ELI `/eli/OR/{year}/{issuer}/{serial}`; `municipality` may be a name. |
+| `hu_read_local_decree(municipality, year, serial, date=None, start=0, max_chars=20000, search=None)` | A municipal decree's complete plain text in pages with search; annexes published only as files (plan sheets) are listed as PDF links. |
 | `hu_coverage()` | Declare what this connector covers, when each family was captured, and - explicitly - what it does NOT cover. Every gap carries a fallback. |
+
+`date` takes `YYYY-MM-DD` (the version in force that day) or `kozlony` (as published).
 
 Every response carries the **citation contract**:
 
