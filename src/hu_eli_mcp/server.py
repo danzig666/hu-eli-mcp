@@ -19,12 +19,12 @@ import re
 from fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 
+from . import runtime
 from .audit import AuditLogger, hash_input, timer
 from .citations import human_readable_citation, parse_code_table, parse_document_page
-from . import runtime
 from .client import DEFAULT_BASE_URL, HuError, HuNotFoundError, NjtClient
-from .models import DocTypeInfo, DocTypeList, IssuerInfo, IssuerList, Legislation, LegislationText
 from .coverage import Coverage, build_coverage
+from .models import DocTypeInfo, DocTypeList, IssuerInfo, IssuerList, Legislation, LegislationText
 
 INSTRUCTIONS = """\
 This MCP server exposes Hungary's official national legislation database, the Nemzeti Jogszabalytar (NJT, njt.jog.gov.hu), maintained by MKIFK. It has no documented public REST/JSON API - the search/browse UI is a JavaScript SPA that requires a session and is not usable headlessly. Instead, this server resolves Hungary's genuine, documented national ELI (European Legislation Identifier) URI scheme (published since 2023, see njt.jog.gov.hu/eli/urisemak) and fetches the resulting server-rendered document page. Every response carries a stable `eli_uri` (a real, native ELI - never fabricated), a `human_readable_citation` and a `source_url` (the citation contract).
