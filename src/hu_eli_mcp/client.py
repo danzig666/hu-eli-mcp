@@ -1,6 +1,7 @@
 """Async httpx client for Nemzeti Jogszabalytar (njt.jog.gov.hu), with cache.
 
-NJT (njt.jog.gov.hu) has no documented public REST/JSON API. It is an AngularJS SPA whose search/browse UI
+NJT (njt.jog.gov.hu) has no documented public REST/JSON API. It is an AngularJS
+SPA whose search/browse UI
 requires a session and JavaScript (not usable headlessly), but whose native ELI URIs
 (``/eli/{tip}/{ev}[/{kib}]/{sr}...``, documented at ``/eli/urisemak``) are plain HTTP redirects
 (302) to a server-rendered ``/jogszabaly/{doc_id}`` HTML page - reachable with no JavaScript and
@@ -15,13 +16,13 @@ statutory or annex blocks fetched via NJT's undocumented AJAX endpoint.
 
 from __future__ import annotations
 
-import anyio
-import httpx
 from urllib.parse import urlparse
 
-from .lazyload import find_deferred_groups, merge_deferred_groups
+import anyio
+import httpx
 
 from .cache import HttpCache
+from .lazyload import find_deferred_groups, merge_deferred_groups
 
 DEFAULT_BASE_URL = "https://njt.jog.gov.hu"
 NOT_FOUND_REDIRECT_PATH = "/eli/kereses"
@@ -187,7 +188,10 @@ class NjtClient:
                     fragments.append(response.text)
                     break
                 except httpx.HTTPStatusError as exc:
-                    if exc.response.status_code not in _RETRY_STATUS or attempt == _MAX_ATTEMPTS - 1:
+                    if (
+                        exc.response.status_code not in _RETRY_STATUS
+                        or attempt == _MAX_ATTEMPTS - 1
+                    ):
                         raise HuError(f"NJT deferred block request failed: {exc}") from exc
                 except (httpx.TimeoutException, httpx.TransportError) as exc:
                     if attempt == _MAX_ATTEMPTS - 1:
