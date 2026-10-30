@@ -181,3 +181,13 @@ async def test_smoke_read_text_btk_reaches_deferred_sections():
     assert page.matches
     later = await hu_read_text("TV", "2012", "100", start=page.matches[0].start, max_chars=2000)
     assert "339. §" in later.text
+
+
+@pytest.mark.asyncio
+async def test_smoke_government_decree_annex_group_without_outer_id():
+    """314/2012. Korm. rendelet: NJT omits one placeholder's outer id in its response."""
+    _live_or_skip()
+    from hu_eli_mcp.server import hu_read_text
+
+    page = await hu_read_text("R", "2012", "314", issuer="Korm", search="13. melléklet a 314/2012")
+    assert page.matches

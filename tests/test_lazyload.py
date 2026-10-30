@@ -159,3 +159,23 @@ def test_reject_placeholder_range_that_would_delete_rendered_text():
     )
     with pytest.raises(ValueError, match="rendered text"):
         find_deferred_groups(page)
+
+
+def test_block_counts_as_returned_when_its_id_range_comes_back():
+    # Seen live for an annex group of 314/2012. Korm. rendelet: NJT returns the content
+    # slices of the range but not the outer placeholder id itself.
+    page = (
+        "<main><p>58. §</p>"
+        '<div id="sc2012-314-20-22-2424" class="pH borderStart" data-show-order="729" '
+        'data-last-show-order="755"><span id="ME9"></span>'
+        '<div id="sc2012-314-20-22-2425" class="pH"></div>'
+        '<div id="sc2012-314-20-22-2514" class="pH"></div>'
+        "</div></main>"
+    )
+    fragment = '<div id="sc2012-314-20-22-2433" class="szelet">9. melléklet</div>'
+    groups = find_deferred_groups(page)
+    assert "9. melléklet" in merge_deferred_groups(page, groups, [fragment])
+
+    unrelated = '<div id="sc2012-314-20-22-9000" class="szelet">other</div>'
+    with pytest.raises(ValueError, match="omitted expected"):
+        merge_deferred_groups(page, groups, [unrelated])

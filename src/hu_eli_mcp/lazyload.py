@@ -142,6 +142,32 @@ def find_deferred_groups(markup: str) -> list[DeferredGroup]:
     return [DeferredGroup(tuple(items)) for items in groups]
 
 
+_SLICE_ID = re.compile(r'id="(sc[^"]*?)-(\d+)"')
+
+
+def _slice_numbers(markup: str) -> dict[str, set[int]]:
+    """NJT content-slice ids ``sc{document-id}-{n}`` grouped by document prefix."""
+    found: dict[str, set[int]] = {}
+    for prefix, number in _SLICE_ID.findall(markup):
+        found.setdefault(prefix, set()).add(int(number))
+    return found
+
+
+def _range_returned(placeholder: str, returned: dict[str, set[int]]) -> bool:
+    """Whether the response has content slices inside the placeholder's id range.
+
+    NJT does not always echo the outer placeholder id (seen for an annex group of
+    314/2012. Korm. rendelet), but its slice ids are sequential, and the placeholder's
+    own children carry the first and last id of the range it stands for.
+    """
+    own = _slice_numbers(placeholder)
+    for prefix, numbers in own.items():
+        low, high = min(numbers), max(numbers)
+        if any(low <= n <= high for n in returned.get(prefix, ())):
+            return True
+    return False
+
+
 def merge_deferred_groups(
     markup: str, groups: list[DeferredGroup], fragments: list[str]
 ) -> str:
@@ -150,9 +176,11 @@ def merge_deferred_groups(
         raise ValueError("Not all NJT deferred groups were downloaded.")
 
     for group, fragment in reversed(list(zip(groups, fragments, strict=True))):
+        returned = _slice_numbers(fragment)
         missing = [
             block.element_id for block in group.blocks
             if f'id="{block.element_id}"' not in fragment
+            and not _range_returned(markup[block.first : block.last], returned)
         ]
         if missing:
             raise ValueError(f"NJT omitted expected deferred-block IDs: {missing[:3]}")
